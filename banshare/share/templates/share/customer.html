@@ -1,0 +1,36 @@
+{% extends 'share/nav.html' %}
+
+{% block content %}
+<h2>Costomer page</h2>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">nickname</th>
+      <th scope="col">firstname</th>
+      <th scope="col">lastname</th>
+      <th scope="col">phone</th>
+      <th scope="col">bank_name</th>
+      <th scope="col">bank_account</th>
+      <th scope="col">line</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for customer in customers %}
+    <tr>
+      <th scope="row">{{customer.id}}</th>
+      <td>{{customer.nickname}}</td>
+      <td>{{customer.firstname}}</td>
+      <td>{{customer.lastname}}</td>
+      <td>{{customer.phone}}</td>
+      <td>{{customer.bank_name}}</td>
+      <td>{{customer.bank_account}}</td>
+      <td>{{customer.line}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+  
+
+{% endblock %}

@@ -1,8 +1,9 @@
-{% extends 'share/layout.html' %}
+{% extends 'share/nav.html' %}
 
 {% block content %}
     <h1>banshare</h1>
     {% if user.is_authenticated %}
-        Hello, {{user.username}}
+        <p>Hello, {{user.username}}</p>
+        <small>{{thistime}}</small>
     {% endif %}
 {% endblock %}

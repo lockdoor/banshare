@@ -1,0 +1,39 @@
+{% extends 'share/nav.html' %}
+
+{% block content %}
+  <h2>Group Share Page</h2>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">id</th>
+        <th scope="col">name</th>
+        <th scope="col">admin_frist</th>
+        <th scope="col">admin_last</th>
+        <th scope="col">queue</th>
+        <th scope="col">bit</th>
+        <th scope="col">quantity</th>
+        <th scope="col">capital</th>
+        <th scope="col">payment</th>
+        <th scope="col">interest</th>
+        <th scope="col">term</th>
+        <th scope="col">date_run</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for share in shares %}
+      <tr>
+        <th scope="row">{{share.id}}</th>
+        <td><a href="{% url 'share:shareDetail' share.id %}">{{share.name}}</a></td>
+        <td>{{share.admin_frist}}</td>
+        <td>{{share.admin_last}}</td>
+        <td>{{share.queue}}</td>
+        <td>{{share.bit}}</td>
+        <td>{{share.quantity}}</td>
+        <td>{{share.capital}}</td>
+        <td>{{share.payment}}</td>
+        <td>{{share.interest}}</td>
+        <td>{{share.term}}</td>
+        <td>{{share.date_run}}</td>
+      </tr>
+      {% endfor %}
+{% endblock %}

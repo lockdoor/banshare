@@ -18,5 +18,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('share/', include('share.urls', namespace='share'))
+    path('', include('share.urls', namespace='share')),
+    #path('share/', include('share.urls', namespace='share')),
 ]
