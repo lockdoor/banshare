@@ -1,0 +1,78 @@
+{% extends 'share/nav.html' %}
+
+{% block content %}
+<script>
+    var sharePayDate = [];
+    var objToPushSharePayDate = {};
+    var currentDate = new Date();
+    //var toDay = Date.now();         
+    var receiveDate = new Date("{{share.date_run}}");
+    var interestDate = new Date("{{share.date_run}}");
+    interestDate.setDate(interestDate.getDate() + {{share.term}});
+    var dateArr = [];
+    var interest = 0;
+    var recieve;
+    var pay_totle;
+    var balance = 0;
+    var bal = {{share.capital}};
+    var noInterest = 1; 
+  var months = [",Jan,", ",Feb,", ",Mar,", ",Apr,", ",May,", ",Jun,", ",Jul,", ",Aug,", ",Sep,", ",Oct,", ",Nov,", ",Dec,"];
+  function receiveDateText(date) {
+      text = date.getDate().toString() + months[date.getMonth()] + date.getFullYear().toString();
+      return text;
+  }
+  //ชุดฟังชั่น ทำให้วันที่ลงท้ายตรงกัน
+  endDate = receiveDate.getDate().toString();    
+  if(endDate.length > 1){
+      endDate = endDate.slice(1);
+  }
+  //console.log(endDate , typeof(endDate));
+  function setDateToSameNumber(date){
+      str = date.getDate().toString();
+      //console.log('str = ',str);            
+      if(str == '31'){            
+          date.setDate(1);
+          date.setMonth(date.getMonth() + 1);
+          console.log(receiveDateText(date) , 'from 31');
+      }        
+      else if(date.getMonth() == 1 && str > '28' && date.getFullYear()%4 != 0){           
+          date.setDate(1);
+          date.setMonth(date.getMonth() + 1); 
+          //console.log(receiveDateText(date) , 'from >28');          
+      }        
+      //ตั้งค่าให้ในทุก ๆ ต้นเดือนต้องเริ่มด้วยวันที่ต้องการให้ลงท้ายเหมือนกัน เมื่อนำไปบวกสิบวันก็จะตรงกันทุกเดือน
+      else if(str.length == 1){            
+          
+          if(str == 9 && endDate == 0){
+              date.setDate(10);
+              //console.log(receiveDateText(date) , 'str.length == 1 , str = 9'); 
+              //console.log('str = ',  str ,'len = ' ,str.length);
+          }else{
+              date.setDate(endDate);
+              //console.log(receiveDateText(date) , 'str.length == 1'); 
+              //console.log('str = ',  str ,'len = ' ,str.length);
+          }   
+      }
+      else if(str == "10" && endDate !=0){
+          date.setDate(endDate);
+          //console.log(receiveDateText(date) , 'str == 10');
+          
+      }
+      /*else if(endDate == 0){
+
+      }*/
+      reciveDate = date;  
+      return date;
+  }
+  //คิดดอกเบี้ยแบบบิทลงไปใส่ในตาราง
+  function interestBit(interest, queue, quantity){
+        return interest*(quantity-queue)
+    }
+
+</script>
+
+{% block detail %}
+
+{% endblock %}
+
+{% endblock %}

@@ -1,0 +1,198 @@
+<!--
+  
+-->
+{% extends 'share/detail.html' %}
+
+{% block detail %}
+
+<h2>{{share.name}}</h2>
+<em id='description'></em>
+<script>
+  document.getElementById('description').innerHTML="{{shareDescription}}";
+</script>
+<em>วันที่เริ่ม {{share.date_run}} ,ยอดรวมดอกเบี้ยตอนนี้ = <span id="totalInterest"></span></em>
+<script>
+  $(document).ready(function(){
+    document.getElementById('totalInterest').innerHTML=interest;
+  });
+</script>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">name</th>
+      <th scope="col">date</th>
+      <th scope="col">payment</th>
+      <th scope="col">pay_interest</th>
+      <th scope="col">capital</th>
+      <th scope="col">interest</th>
+      <th scope="col">recieve</th>
+      <th scope="col">pay_totle</th>
+      <th scope="col">balance</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for customer in share.share_groups_customers_set.all|dictsort:"receive_queue" %}
+    <tr>
+      <th scope="row">{{customer.receive_queue}}</th>
+      <td>{{customer.customer}}</td>
+      <td id="{{customer.receive_queue}}"></td>
+      <script>
+        document.getElementById("{{customer.receive_queue}}").innerHTML = receiveDateText(setDateToSameNumber(receiveDate));
+        dateArr.push(receiveDateText(setDateToSameNumber(receiveDate)));
+      </script>
+      <!--แสดงส่วนของท้าว-->
+      {% if customer.receive_queue == 1 %}
+      <td>0</td>
+      <td>0</td>
+      <td>{{share.capital}}</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>{{share.capital}}</td>
+      <!--แสดงส่วนของลูกแชร์-->
+      {% else %}
+      <td>{{share.payment}}</td>
+      <td id="pay_interest{{customer.receive_queue}}">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="sent_share_groups_customers_id{{customer.receive_queue}}">
+        {{customer.interest_bit}}
+        </button>
+        <script>          
+          $(document).ready(function(){
+            $('#sent_share_groups_customers_id{{customer.receive_queue}}').click(function(){
+              $('#share_groups_customer_id').val('{{customer.id}}');
+              $('#share_group_id').val('{{share.id}}');
+              $('#share_groups_customer_receive_queue').val('{{customer.receive_queue}}');
+              //ต้องแก้วันที่ตรงนี้ไม่ให้ไปตาม loop
+              $('#share_groups_customer_receive_date').val(dateArr[{{customer.receive_queue}} - 1]);
+              console.log('{{customer.id}}' , receiveDate)
+            });
+          });
+        </script>
+      </td>
+        <!--ลูกแชร์จ่ายดอกหลังจากรับ>
+        <script>
+          //if (interestDate < currentDate) {
+            document.getElementById("pay_interest{{customer.receive_queue}}").innerHTML = {{ share.interest }};
+            
+          //}
+          
+        </script-->
+      <td id="capital{{customer.receive_queue}}"></td>
+        <!--ลูกแชร์ถึงวันรับให้แสดงเงินต้น-->
+        <script>
+          //if (receiveDate < currentDate) {
+            document.getElementById("capital{{customer.receive_queue}}").innerHTML = {{ share.capital }};
+            
+          //}
+          
+        </script>
+      <td id="interest{{customer.receive_queue}}"></td>
+        <script>
+          //if(receiveDate < currentDate){
+            //var interestBit = {{customer.interest_bit}};
+
+            document.getElementById('interest{{customer.receive_queue}}').innerHTML = interestBit({{customer.interest_bit}}, {{customer.receive_queue}}, {{share.quantity}});
+            
+          //}
+        </script>
+      <td id="recieve{{customer.receive_queue}}"></td>
+        <script>
+
+          recieve = {{share.capital}} - ({{share.payment}} + {{customer.interest_bit}}) + interest;
+          interest += {{customer.interest_bit}};
+          document.getElementById("recieve{{customer.receive_queue}}").innerHTML = recieve;          
+        </script>
+      <td id="pay_totle{{customer.receive_queue}}"></td>
+        <script>
+          pay_totle = ({{share.payment}} * {{share.quantity}}) + interestBit({{customer.interest_bit}}, {{customer.receive_queue}}, {{share.quantity}});
+          document.getElementById("pay_totle{{customer.receive_queue}}").innerHTML = pay_totle;
+        </script>
+      <td id="balance{{customer.receive_queue}}"></td>
+        <script>
+          balance = recieve - pay_totle;
+          document.getElementById("balance{{customer.receive_queue}}").innerHTML = balance;
+          bal += balance;
+          //console.log(bal);
+        </script>
+      <script>
+        //interest = interest + {{ share.interest }};
+      </script>
+      {% endif %}
+    </tr>
+
+    
+    
+    <script>
+    {% if share.build_share_pay_date %}
+      //dataToSaveInSharePayDate, {{customer.share_group.quantity}}
+      objToPushSharePayDate = {group:'{{customer.share_group.id}}', queue:"{{customer.receive_queue}}", date:receiveDateText(receiveDate)};
+      sharePayDate.push(objToPushSharePayDate);
+    {% endif %}
+    
+      //noInterest = noInterest + 1;
+      interestDate.setDate(interestDate.getDate()+{{share.term}});
+      receiveDate.setDate(receiveDate.getDate()+{{share.term}});
+    </script>
+    {% endfor %}
+    </tbody>
+    
+</table>
+{% if share.build_share_pay_date %}
+<script>
+var myJson = JSON.stringify(sharePayDate);     
+</script>
+
+<div id="formSharePayDate">
+  <form action="{% url 'share:sharePayDate' %}" method="post">
+    {% csrf_token %}
+    <input type='hidden' name='myJson' id='sharePayDate' value="myJson">
+    <button type="submit" class='btn-info'>บันทึกวันที่ส่งแชร์ลงฐานข้อมูล</button>
+  </form>
+</div>
+{% endif %}
+<script>
+
+$(document).ready(function(){
+  $('#sharePayDate').val(myJson);
+});
+</script>
+
+<!-- Button trigger modal -->
+<!--button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Launch demo modal
+</button-->
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">ใส่จำนวนดอกเบี้ยที่มีการบิท</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="formSharePayDate">
+          <form action="{% url 'share:addBitInterate' %}" method="post">
+            {% csrf_token %}
+            ใส่จำนวนดอกเบี้ยที่มีการบิท : <input type='text' name='addBitInterate' id="addBitInterate"><br>
+            ใส่ลำดับ : <input type='text' name='queue' id="queue"><br>
+            <input type='hidden' name='share_group_id' id="share_group_id">
+            <input type='hidden' name="share_groups_customer_id" id="share_groups_customer_id">
+            <input type='hidden' name="share_groups_customer_receive_queue" id="share_groups_customer_receive_queue">
+            <input type='hidden' name="share_groups_customer_receive_date" id="share_groups_customer_receive_date"> 
+            <button type="submit" class='btn-primary' value="0">บันทึกดอกเบี้ย</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!--button type="button" class="btn btn-primary">Save changes</button-->
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

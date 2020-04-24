@@ -1,0 +1,18 @@
+{% extends 'share/nav.html' %}
+
+{% block content %}
+<h2>Costomer detail page : {{toDay}}</h2>
+<h3>you select customer id: {{customer.id}} , name: {{customer}}</h3>
+
+{% for share in customer.share_groups_customers_set.all %}
+
+    {% if share.receive_date < toDay %}
+        <p style="color:red">{{share}}, วันที่ได้รับ {{share.receive_date}}</p>
+    {% else %}
+        <p>{{share}}, วันที่ได้รับ {{share.receive_date}}</p>
+    {% endif %}
+
+{% endfor %}
+  
+
+{% endblock %}

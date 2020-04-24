@@ -2,8 +2,145 @@
 
 {% block content %}
     <h1>banshare</h1>
+    
+    
     {% if user.is_authenticated %}
+    <script>
+        var dateArr = [];
+        /*var obj = { id : 'show.share_groups_customers.customer.id',
+                    name : 'show.share_groups_customers.customer.name',
+                    group : 'show.share_groups_customers.share_group.name',
+                    //ในกรณีส่งต้นเท่ากันหมด
+                    pay : 'show.share_groups_customers.share_group.payment',
+                    //ในกรณีส่งต้นไม่เท่ากันแบบฟิก
+                    //pay : 'show.share_groups_customers.fix_rate',
+                    //ในกรณีดอกตาม
+                    interest : 'show.share_groups_customers.share_group.interest',
+                    //ในกรณีดอกบิต
+                    //interest : 'show.share_groups_customers.interest_bit',
+                    receive_date : Date.now(),
+                    };*/
+        var obj ={};
+        
+    </script>
         <p>Hello, {{user.username}}</p>
-        <small>{{thistime}}</small>
+        <p>รายงานวันที่ {{toDay}}</p>
+        <!--ส่วนของ การเลือกวันที่จะดูรายงาน-->
+        <form action="{% url 'share:indexWithSetDate' %}" method="POST">
+            {% csrf_token %}
+            เลือกวันที่ต้องการดูรายงาน : <input type="date" name="date" id="date">
+            <button type="submit" class="btn-primary">submit</button>
+        </form><br>
+        <script>        
+            formDate = new Date();
+            function add0(str){
+                if(str.length == 1){
+                    str = '0' + str;
+                }
+                return str;
+            }
+            textDate = formDate.getFullYear().toString() + "-" + add0((formDate.getMonth()+1).toString()) + "-" + add0(formDate.getDate().toString());
+            document.getElementById("date").defaultValue = textDate;
+            console.log(textDate)            
+        </script>
+        <!---->
+        <p id='js'></p>
+        <script>
+            
+            var toDay = Date.now();
+            var num = 1;                 
+        </script>
+        {% for show in showToDay %}        
+            <script>
+                
+                id = {{show.share_groups_customers.customer.id}};
+                name = '{{show.share_groups_customers.customer}}';
+                group = '{{show.share_groups_customers.share_group.name}}';
+                receive_date = new Date('{{show.share_groups_customers.receive_date}}');
+                
+                //ถ้าเป็นแชร์แบบรับตามจองส่งต้นแบบฟิก                
+                if('{{show.share_groups_customers.share_group.admin_frist}}' == 'True' && '{{show.share_groups_customers.receive_queue}}' == 1){
+                    pay = 0;
+                }
+                else if({{show.share_groups_customers.fix_rate}}){
+                    pay = {{show.share_groups_customers.fix_rate}};
+                }
+                else{
+                    pay = {{show.share_groups_customers.share_group.payment}};
+                }
+                //ตรวจสอบว่าได้มีการเปียแชร์หรือยัง
+                
+                if(receive_date < toDay){
+                    //ถ้าเป็นท้าวยกหัวไม่ต้องจ่ายดอก
+                    if('{{show.share_groups_customers.share_group.admin_frist}}' == 'True' && '{{show.share_groups_customers.receive_queue}}' == '1'){
+                        interest = 0;
+                    }
+                    //ถ้าเป็นแชร์แบบบิตดอก
+                    else if('{{show.share_groups_customers.share_group.bit}}' == 'True'){
+                        interest = {{show.share_groups_customers.interest_bit}};
+                    //ถ้าเป็นแชร์แบบดอกตาม
+                    }
+                    else if({{show.share_groups_customers.share_group.interest}}){
+                        interest = {{show.share_groups_customers.share_group.interest}};
+                    }
+                    else if('{{show.share_groups_customers.share_group.fix_rate}}' == 'True'){
+                        interest = 0;
+                    }
+                    else{
+                        interest = 5000000;
+                    }
+                }else{
+                    interest = 0;                  
+                }
+                obj = {id:id, name:name, group:group,receive_date:receive_date, pay:pay, interest:interest}
+                
+                //console.log(obj);
+                dateArr.push(obj);                
+            </script>
+        {% endfor %}
+        <script>
+            //console.log(dateArr);
+            var months = [",Jan,", ",Feb,", ",Mar,", ",Apr,", ",May,", ",Jun,", ",Jul,", ",Aug,", ",Sep,", ",Oct,", ",Nov,", ",Dec,"];
+            function receiveDateText(date) {
+                text = date.getDate().toString() + months[date.getMonth()] + date.getFullYear().toString();
+                return text;
+             }
+            dateArr.sort(function(a, b){return a.id - b.id});
+            var tableHead = '<table class="table table-hover"><thead><tr>\
+                                <th scope="col">id</th>\
+                                <th scope="col">name</th>\
+                                <th scope="col">share</th>\
+                                <th scope="col">date</th>\
+                                <th scope="col">payment</th>\
+                                <th scope="col">interest</th>\
+                                </tr></thead><tbody>';
+            var text = tableHead;
+            var customerPay = 0;
+            var custom1 = dateArr[0].id;
+            var custom2;
+            var name1 = dateArr[0].name;
+            var name2;
+            for(x of dateArr){
+                var tr = "<tr><td>";
+                if(x.receive_date < toDay){
+                    tr = "<tr style='color:red'><td>";
+                }
+                custom2 = x.id;
+                name2 = x.name;                
+                if(custom1 != custom2){                    
+                    text += "</tbody></table>";
+                    text += "<p class='text-center' style='margin-bottom:50px;color:blue;text-decoration: underline;'><strong>" + name1 + "  ยอดรวมที่ต้องส่ง " + customerPay + "</strong></p>";
+                    customerPay = 0;
+                    custom1 = custom2;
+                    name1 = name2;
+                    text += tableHead;
+                }
+                text += tr + x.id + "</td><td>" + x.name + "</td><td>" + x.group + "</td><td>" + receiveDateText(x.receive_date) + "</td><td>";
+                text += x.pay + "</td><td>" + x.interest + "</td></tr>";
+                customerPay += (x.pay + x.interest);
+            }
+            text += "</tbody></table>";
+            $('#js').html(text);
+        </script>
     {% endif %}
 {% endblock %}

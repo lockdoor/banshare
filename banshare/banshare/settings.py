@@ -25,7 +25,7 @@ SECRET_KEY = '3o7s6*0$wxhgcd2^@vxfeixh*z&uvletwncf1dr!!h(ai&l-27'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['172.16.0.250','lockdoor.local','localhost']
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'share',
+    'polls',
 ]
 
 MIDDLEWARE = [

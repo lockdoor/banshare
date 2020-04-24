@@ -19,7 +19,7 @@
     {% for customer in customers %}
     <tr>
       <th scope="row">{{customer.id}}</th>
-      <td>{{customer.nickname}}</td>
+      <td><a href="{% url 'share:customerDetail' customer.id %}">{{customer.nickname}}</a></td>
       <td>{{customer.firstname}}</td>
       <td>{{customer.lastname}}</td>
       <td>{{customer.phone}}</td>

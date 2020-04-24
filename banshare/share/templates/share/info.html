@@ -1,0 +1,44 @@
+{% extends 'share/nav.html' %}
+
+{% block content %}
+    <h1>banshare</h1>
+    {% if user.is_authenticated %}
+        <p>Hello, {{user.username}}</p>
+        <!--
+        <small>this day is {{thisDay}}</small><br>
+        <small>seven day back is {{sevenDayBack}}</small><br>
+        <small>seven day next is {{sevenDayNext}}</small><br>
+        {% for share in shares %}
+            {{share.share_group}} start date {{share.share_group.date_run}}<br>
+        {% endfor %}
+        -->
+<ol>ขั้นตอนการใช้งาน APP ตอนนี้อยู่ในขั้นตอนที่ 8
+    <li>ที่ admin สร้าง customer</li>
+    <li>ที่ admin สร้าง share_group</li>
+    <li>ที่ admin สร้าง Share_groups_customers (คือการนำคนเข้าไปใส่ในวงแชร์</il>
+    <li>ที่ share:detail หน้าแสดงตารางแชร์ ตรวจสอบความถูกต้อง</li>
+    <li>กด btn บันทึกข้อมูล เพื่อสร้าง record ใน share_pay_date</li>
+    <li>
+        <ul>ในกรณีแชร์แบบบิท สามารถใส่ดอกบิทได้ที่ตารางแชร์            
+            <li>รับข้อมูล bitInterate, Share_groups_customers_id, Share_groups_id, Share_groups_customers.receive_queue  จาก template form method post</li>
+            <li>ทำการเปลี่ยนค่า receive_queue ที่ตรงกับ POST['receive_queue'] เก็บค่าที่เปลี่ยนใส่ไว้ในตัวแปร yyy</li>
+            <li>Share_groups_customers_id ที่ตรงกับ POST['Share_groups_customers_id'] เก็บค่า receive_queue ใส่ตัวแปร xxx, ตั้งค่า receive_queue เป็น POST['receive_queue'],ตั้งค่า  bitInterate=POST['bitInterate'] </li>
+            <li>Share_groups_customers_receive_queue ที่ตรงกับตัวแปร yyy update Share_groups_customers_receive_queue = xxx</li>
+            <li>เมื่อเสร็จแล้วให้ return กลับหน้า shareDetail</li>
+        </ul>
+    </li>
+    <li>หน้า index ที่รายงานข้อมูลจ่ายแชร์แต่ละวงของลูกค้า และรวมยอดแต่ละวัน</li>
+    <li>หน้า customer/detail ไว้ดูรายละเอียดของ customer ยอดบวกหรือลบในวงแชร์ทั้งหมด</li>
+    <li>ที่ตารางแชร์สามารถเปลี่ยนแปลงข้อมูลลูกค้าได้</li>
+</ol><hr>  
+
+<ul> แนวคิดสร้างฐานข้อมูล
+    <li>ที่ template:detail สร้าง button ขึ้นมาเพื่อใช้คำสั่งสร้างฐานข้อมูล ถ้าสร้างฐานข้อมูลแล้ว button นี้จะเปลี่ยนเป็นแก้ไขฐานข้อมูล</li>
+    <li>ฐานข้อมูลจะมี date , Share_groups_customers = fk</li>
+    <li>สร้าง function การสร้าง Object เพื่อบันทึกหรือแก้ไขฐานข้อมูล</li>
+</ul>
+
+
+
+    {% endif %}
+{% endblock %}
