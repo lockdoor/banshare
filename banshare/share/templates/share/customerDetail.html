@@ -3,16 +3,189 @@
 {% block content %}
 <h2>Costomer detail page : {{toDay}}</h2>
 <h3>you select customer id: {{customer.id}} , name: {{customer}}</h3>
+<div id="js"></div>
+<script>
+    toDay = new Date('{{toDay|date:"Y-m-d"}}');
+    var arr = [];
+    var obj = {};
+    
+    //ชุดฟังชั่น ทำให้วันที่ลงท้ายตรงกัน
+    var endDate = 'str';    
+  if(endDate.length > 1){
+      endDate = endDate.slice(1);
+  }
+  //console.log(endDate , typeof(endDate))
+  function setDateToSameNumber(date){
 
+    //console.log(endDate , typeof(endDate));
+      str = date.getDate().toString();
+      //console.log('str = ',str);            
+      if(str == '31'){            
+          date.setDate(1);
+          date.setMonth(date.getMonth() + 1);
+          //console.log('วันที่นี้เท่ากับ31');
+      }        
+      else if(date.getMonth() == 1 && str > '28' && date.getFullYear()%4 != 0){           
+          date.setDate(1);
+          date.setMonth(date.getMonth() + 1); 
+          //console.log('นี่เป็นเดือนกุมภา วันที่มากกว่า 28 และเป็นปีอาทิตยสุรธิน');          
+      }        
+      //ตั้งค่าให้ในทุก ๆ ต้นเดือนต้องเริ่มด้วยวันที่ต้องการให้ลงท้ายเหมือนกัน เมื่อนำไปบวกสิบวันก็จะตรงกันทุกเดือน
+      else if(str.length == 1){            
+          
+          if(str == 9 && endDate == 0){
+              date.setDate(10);               
+              //console.log('เป็นวันที่ตัวเดียว และเป็นวันที่เก้า และ ตัวที่จะตรงกันเป็น 0');
+          }else{
+              date.setDate(endDate);
+              
+              //console.log('เป็นวันที่ตัวเดียว ตัวที่ต้องการให้ลงท้ายคือ ' , endDate);
+          }   
+      }
+      else if(str == "10" && endDate !=0){
+          date.setDate(endDate);
+          //console.log(receiveDateText(date) , 'str == 10');
+          
+      }
+      /*else if(endDate == 0){
+
+      }*/
+      //reciveDate = date;  
+      return date;
+  }
+</script>
 {% for share in customer.share_groups_customers_set.all %}
 
-    {% if share.receive_date < toDay %}
-        <p style="color:red">{{share}}, วันที่ได้รับ {{share.receive_date}}</p>
-    {% else %}
-        <p>{{share}}, วันที่ได้รับ {{share.receive_date}}</p>
-    {% endif %}
+    <script>
+        name = '{{share.share_group}}';
+        receive_date = new Date('{{share.receive_date|date:"Y-m-d"}}');
+        quantity = {{share.share_group.quantity}};
+        capital = {{share.share_group.capital}};
+        if('{{share.share_group.admin_frist}}' == 'True' && {{share.receive_queue}} == 1){
+            payment = 'admin';
+        }else if({{share.share_group.payment}}){
+            payment = {{share.share_group.payment}};
+        }else{
+            payment = {{share.fix_rate}};
+        }
+        //interest
+        if('{{share.share_group.admin_frist}}' == 'True' && {{share.receive_queue}} == 1){
+            interest = 'admin';
+        }else if({{share.interest_bit}}){
+            interest = {{share.interest_bit}};
+        }else if({{share.share_group.interest}}){
+            interest = {{share.share_group.interest}};
+        }else{
+            interest = 0;
+        }
+        date_run = new Date('{{share.share_group.date_run|date:"Y-m-d"}}');
+        term = '{{share.share_group.term}}';
+
+        fix_last_date = '{{share.share_group.fix_last_date}}';
+
+        obj = {name:name, receive_date:receive_date, quantity:quantity, capital:capital, payment:payment, interest:interest, term:term, date_run:date_run, fix_last_date:fix_last_date};
+        arr.push(obj);
+        //console.log(obj);
+    </script>
 
 {% endfor %}
-  
+    <script>
+        text = "";
+        setColor = "<p>";
+        
+        allbalance = 0;
+        //ฟังชั่นเช็คจำนวนงวดที่ส่งมาแล้ว
+        function amount(startDate, term, fix_last_date){
+            var num = 0;            
+            //console.log(term);
+            endDate = new Date(startDate);
+            endDate = endDate.getDate().toString();
+            while(startDate < toDay){
+                //console.log(startDate);
+                startDate.setDate(startDate.getDate() + parseInt(term));
+                if(fix_last_date == 'True'){
+                    //console.log(setDateToSameNumber(startDate));
+                    startDate.setDate(startDate.getDate(setDateToSameNumber(startDate).getDate));
+                    //startDate = setDateToSameNumber(startDate);
+                }
+                
+                num+=1;
+                //console.log(typeof(num));
+            }
+            //console.log('num = ', num, typeof(num));
+            return num;
+        }
+        //คิดยอดส่งยังไม่รวมดอก
+        function totalPay(amount, payment){
+            //console.log(amount, typeof(amount));
+            //console.log(payment, typeof(payment));
+            return amount*payment;
+        }
+        //เริ่มสร้าง html
+        for(x of arr){
+            balance = x.capital;
+            date_run_str = x.date_run.getDate().toString() + ':' + (x.date_run.getMonth()+1).toString() + ':' + x.date_run.getFullYear().toString();
+            amount1 = amount(x.date_run, x.term, x.fix_last_date);
+            totalPay1 = totalPay(amount1, x.payment);
+
+            balance = 0;
+            
+            console.log(totalPay1 , typeof(totalPay1));
+            if(x.payment == 'admin' || x.interest == 'admin'){
+                setColor = '<p style="color:blue">';
+                console.log('ท้าวยกหัว');
+            }else{
+                if(isNaN(x.receive_date.getTime())){
+                    setColor = "<p>";
+                    balance = totalPay1;
+                    console.log('แชร์แบบบิตถ้ายังไม่เปียจะยังไม่มีวันรับ');
+                }else{
+                    if(x.receive_date < toDay){
+                        setColor = '<p style="color:red">';
+                        //คิดยอดถ้าเปียแล้ว
+                        balance = totalPay1 - x.capital;
+                        console.log('ถ้ามีวันรับแน่นอน และได้เปียไปแล้ว');
+                    }else{
+                        setColor = "<p>"; 
+                        balance = totalPay1;
+                        console.log('ถ้ามีวันรับแน่นอน ยังไม่ได้เปีย');
+                    }
+                }                 
+            }
+            text += setColor + x.name + ', วันที่เริ่ม: ' + date_run_str + ', ส่งมาแล้ว: '+ amount1.toString();
+            text += '/' + x.quantity +'(' + totalPay1.toString() + ')';
+            text += ', ยอดที่ยังต้องส่ง : ' + (x.capital - totalPay1).toString() + ', Balance = ' + balance.toString() + '</p>';
+
+            allbalance += balance;            
+        }
+        text += '<p class="text-center"><strong>รวมความสมดุลบัญชี = '+ allbalance.toString() +'</p></strong>';
+        $(document).ready(function(){
+            $('#js').html(text);
+        });
+    </script>
 
 {% endblock %}
+<!--
+    ข้อมูลที่ต้องการได้รับ
+    1. แชร์ทุกวงที่เล่น for share in customer.share_groups_customers_set.all
+    2. ข้อมูลที่จะเอาไปใช้ใน js obj
+        2.1 ชื่อกลุ่มแชร์
+        2.2 วันเปีย
+            2.2.1 ถ้าเปียแล้ว
+                2.2.1,1 จำนวนงวดที่ยังต้องส่ง
+            2.2.2 ถ้ายังไม่ได้เปีย
+        2.3 จำนวนงวด
+        2.4 เงินต้น
+        2.5 เงินที่ต้องส่งต่องวด
+        2.6 ดอกเบี้ยที่ต้องส่งต่องวด
+
+    การแสดงผล
+    ให้แสดงผลแค่ ชื่อวง , balance คื จำนวนเงิน บวก หรือ ลบ ท้ายสุดให้แสดง ผลลัพธ์รวมทั้งหมด
+    -balance = เงินที่ส่งเข้ามาแล้วทั้งหมด - เงินต้น;
+    -เงินที่ส่งเข้ามาแล้วทั้งหมด = เงินที่ต้องส่งต่องวด * จำนวนงวด;
+    -จำนวนงวด = วันที่เริ่มแชร์ ถึง วันที่จะดูรายงาน หาร จำนวนห่างของวันส่งแชร์ 
+        เอาใส่ Array แล้วตรวจเช็คความถูกต้องก่อนใช้งาน 
+        การนำไปใช้ก็ให้นับ Array.length ส่งเข้าไปเป็นจำนวนงวด
+
+
+-->

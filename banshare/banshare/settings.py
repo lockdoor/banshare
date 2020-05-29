@@ -25,7 +25,7 @@ SECRET_KEY = '3o7s6*0$wxhgcd2^@vxfeixh*z&uvletwncf1dr!!h(ai&l-27'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['172.16.0.250','lockdoor.local','localhost']
+ALLOWED_HOSTS = ['172.16.0.250','lockdoor.local','localhost','c805a945.ngrok.io']
 
 
 # Application definition

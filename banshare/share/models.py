@@ -53,7 +53,7 @@ class Share_groups(models.Model):
     #ส่งรายกี่วัน
     term = models.IntegerField(help_text='จำนวนวันที่ส่งต่องวด', blank=True , null=True)
     #วันที่ส่งต้องลงท้ายตรงกัน
-    fix_last_date = models.BooleanField(default=False, help_text='วันที่ส่งต้องลงท้ายตรงกัน')
+    fix_last_date = models.BooleanField(default=False, help_text='วันที่ส่งต้องลงท้ายตรงกัน แชร์ราย10วันและ15วันต้องติ๊กตรงนี้ด้วย')
     #วันเริ่มรันวง
     date_run = models.DateField(help_text='วันที่เริ่มวง')
     #ปิดวง ไม่ต้องการให้แสดงผลแชร์วงนี้
@@ -69,13 +69,13 @@ class Share_groups_customers(models.Model):
     #ลูกค้า
     customer = models.ForeignKey(Customers, on_delete=models.CASCADE, null=True)    
     #รับแชร์มือที่    
-    receive_queue = models.IntegerField(help_text='ลำดับที่',default=1)
+    receive_queue = models.IntegerField(help_text='ลำดับที่ ต้องใส่ทุกครั้ง',default=1)
     #ฟิกเรต
-    fix_rate = models.IntegerField(help_text='ฟิกเรต', default=0)
+    fix_rate = models.IntegerField(help_text='ฟิกเรต ใส่เฉพาะวงแชร์แบบฟิกเรต', default=0)
     #วันที่รับแชร์แบบบิท
-    receive_date = models.DateField(help_text='วันที่เปียแชร์', blank=True, null=True)
+    receive_date = models.DateField(help_text='วันที่เปียแชร์ ไม่ต้องใส่ โปรแกรมจะกำหนดให้อัตโนมัติ', blank=True, null=True)
     #ดอกเบี้ยที่บิท
-    interest_bit = models.IntegerField(help_text='ดอกเบี้ยที่บิท',default=0)
+    interest_bit = models.IntegerField(help_text='ดอกเบี้ยที่บิท ไม่ต้องใส่ โปรแกรมจะกำหนดให้อัตโนมัติ',default=0)
     class Meta:
         unique_together = ('share_group', 'receive_queue',)
     
