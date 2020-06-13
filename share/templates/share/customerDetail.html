@@ -97,16 +97,18 @@
         //ฟังชั่นเช็คจำนวนงวดที่ส่งมาแล้ว
         function amount(startDate, term, fix_last_date){
             var num = 0;            
-            //console.log(term);
+            //console.log(startDate, term, fix_last_date);
             endDate = new Date(startDate);
             endDate = endDate.getDate().toString();
+            endDate = endDate.slice(1);
+            //console.log('endDate is ', endDate)
             while(startDate < toDay){
                 //console.log(startDate);
                 startDate.setDate(startDate.getDate() + parseInt(term));
                 if(fix_last_date == 'True'){
-                    //console.log(setDateToSameNumber(startDate));
-                    startDate.setDate(startDate.getDate(setDateToSameNumber(startDate).getDate));
-                    //startDate = setDateToSameNumber(startDate);
+                    //console.log('fix last date true', setDateToSameNumber(startDate));
+                    //startDate.setDate(startDate.getDate(setDateToSameNumber(startDate).getDate));
+                    startDate = setDateToSameNumber(startDate);
                 }
                 
                 num+=1;
@@ -127,6 +129,7 @@
             date_run_str = x.date_run.getDate().toString() + ':' + (x.date_run.getMonth()+1).toString() + ':' + x.date_run.getFullYear().toString();
             amount1 = amount(x.date_run, x.term, x.fix_last_date);
             totalPay1 = totalPay(amount1, x.payment);
+            console.log(amount1 , x.payment);
 
             balance = 0;
             
@@ -155,6 +158,7 @@
             text += setColor + x.name + ', วันที่เริ่ม: ' + date_run_str + ', ส่งมาแล้ว: '+ amount1.toString();
             text += '/' + x.quantity +'(' + totalPay1.toString() + ')';
             text += ', ยอดที่ยังต้องส่ง : ' + (x.capital - totalPay1).toString() + ', Balance = ' + balance.toString() + '</p>';
+            console.log('x.captial = ', x.capital, ', totalPay1 = ', totalPay1);
 
             allbalance += balance;            
         }
